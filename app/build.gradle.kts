@@ -85,7 +85,12 @@ dependencies {
     implementation(libs.timber)
 
     implementation(libs.maps.ktx)
+    implementation(libs.play.services.location)
+
     implementation(libs.coil)
     implementation(libs.androidx.work.runtime.ktx)
 
+}
+kapt {
+    correctErrorTypes = true
 }

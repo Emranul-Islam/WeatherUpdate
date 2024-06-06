@@ -6,17 +6,17 @@
     <data>
         <variable
             name="viewModel"
-            type="com.emranul.weatherupdate.presentation.home.WeatherViewModel" />
+            type="com.emranul.weatherupdate.features.home.presentation.WeatherViewModel" />
 
-        <import type="com.emranul.weatherupdate.api.Result" />
+        <import type="com.emranul.weatherupdate.network.Result" />
 
-        <import type="com.emranul.weatherupdate.api.Status" />
+        <import type="com.emranul.weatherupdate.network.Status" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".presentation.home.HomeFragment">
+        tools:context=".features.home.presentation.HomeFragment">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideLineTop"

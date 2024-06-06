@@ -7,14 +7,14 @@
 
         <variable
             name="item"
-            type="com.emranul.weatherupdate.domain.model.WeatherData" />
+            type="com.emranul.weatherupdate.core.domain.model.WeatherData" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".presentation.details.WeatherDetailsFragment">
+        tools:context=".features.details.WeatherDetailsFragment">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideLineTop"

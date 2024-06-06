@@ -35,7 +35,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerView"
-            android:name="com.emranul.weatherupdate.base.ui.DispatchInsetsNavHostFragment"
+            android:name="com.emranul.weatherupdate.core.base.ui.DispatchInsetsNavHostFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:defaultNavHost="true"

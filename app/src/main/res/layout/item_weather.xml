@@ -7,11 +7,11 @@
 
         <variable
             name="viewModel"
-            type="com.emranul.weatherupdate.presentation.home.WeatherViewModel" />
+            type="com.emranul.weatherupdate.features.home.presentation.WeatherViewModel" />
 
         <variable
             name="item"
-            type="com.emranul.weatherupdate.domain.model.WeatherData" />
+            type="com.emranul.weatherupdate.core.domain.model.WeatherData" />
 
 
     </data>

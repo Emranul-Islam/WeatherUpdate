@@ -23,6 +23,7 @@ timber = "5.0.1"
 workRuntimeKtx = "2.9.0"
 ksp = "1.9.0-1.0.13"
 safeArgs = "2.7.7"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +59,7 @@ maps-ktx = { module = "com.google.maps.android:maps-ktx", version.ref = "mapsKtx
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
