@@ -90,6 +90,9 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.androidx.work.runtime.ktx)
 
+
+    implementation(libs.androidx.core.splashscreen)
+
 }
 kapt {
     correctErrorTypes = true

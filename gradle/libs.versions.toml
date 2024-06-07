@@ -1,6 +1,7 @@
 [versions]
 agp = "8.3.2"
 coil = "2.6.0"
+coreSplashscreen = "1.0.1"
 hiltAndroid = "2.48.1"
 hiltWork = "1.0.0"
 kotlin = "1.9.0"
@@ -27,6 +28,7 @@ playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

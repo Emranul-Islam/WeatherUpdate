@@ -78,7 +78,7 @@ class DailyWeatherNotifyUseCase constructor(val context: Context) {
             .build()
 
         val periodicWorkRequest =
-            PeriodicWorkRequestBuilder<WeatherReminderWorker>(2, TimeUnit.MINUTES, flexTimeInterval = 2, flexTimeIntervalUnit = TimeUnit.MINUTES)
+            PeriodicWorkRequestBuilder<WeatherReminderWorker>(2, TimeUnit.MINUTES)
                 .setInputData(data)
                 .setConstraints(constraints)
                 .build()
