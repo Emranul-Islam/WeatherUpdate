@@ -14,11 +14,18 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <style name="Regular_Text_28sp">
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <style name="Medium_Text_18sp">
         <item name="fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">18sp</item>
         <item name="android:includeFontPadding">false</item>
     </style>
+
     <style name="Medium_Text_28sp">
         <item name="fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">28sp</item>
