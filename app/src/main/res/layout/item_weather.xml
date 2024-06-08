@@ -55,8 +55,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Dhaka"
+            style="@style/Regular_Text_18sp"
             android:text="@{item.name}"
-            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="@id/guideLineStart"
             app:layout_constraintTop_toTopOf="@id/guideLineTop" />
 
@@ -66,6 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Clear Sky"
+            style="@style/Regular_Text"
             android:text="@{item.weather.main}"
             android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="@id/guideLineStart"
@@ -73,16 +74,6 @@
             app:layout_constraintBottom_toTopOf="@id/guideLineBottom" />
 
 
-        <TextView
-            android:id="@+id/tvUnit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@id/guideLineEnd"
-            app:layout_constraintTop_toTopOf="@id/guideLineTop"
-            app:layout_constraintBottom_toBottomOf="@id/guideLineBottom" />
 
         <TextView
             android:id="@+id/tvTemperature"
@@ -93,7 +84,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginEnd="4dp"
-            app:layout_constraintEnd_toStartOf="@id/tvUnit"
+            app:layout_constraintEnd_toEndOf="@id/guideLineEnd"
             app:layout_constraintTop_toTopOf="@id/guideLineTop"
             app:layout_constraintBottom_toBottomOf="@id/guideLineBottom" />
 

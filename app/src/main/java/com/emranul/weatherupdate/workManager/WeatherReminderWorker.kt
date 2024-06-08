@@ -1,8 +1,6 @@
 package com.emranul.weatherupdate.workManager
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -23,7 +21,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltWorker
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -58,24 +55,31 @@ class WeatherReminderWorker @AssistedInject constructor(
             return Result.failure()
         }
 
-        scope.launch {
-            _currentWeather.tryEmit(
-                WeathersPayload(
-                    lat!!,
-                    lan!!
-                )
-            )
-        }
+//        scope.launch {
+//            _currentWeather.tryEmit(
+//                WeathersPayload(
+//                    lat!!,
+//                    lan!!
+//                )
+//            )
+//        }
 
         var result: Result? = null
+
+
         try {
             scope.async {
-             currentWeather.collect {
-
+                return@async currentWeatherUseCase(
+                    WeathersPayload(
+                        lat!!,
+                        lan!!
+                    )
+                ).collect {
                     when (it) {
                         is com.emranul.weatherupdate.network.Result.Error -> {
                             Timber.d("Current Weather data error ----------> ${it.message}")
                             result = Result.failure()
+                            this.cancel()
                         }
 
                         is com.emranul.weatherupdate.network.Result.Loading -> Unit
@@ -83,17 +87,17 @@ class WeatherReminderWorker @AssistedInject constructor(
                             Timber.d("Current Weather data success ----------> ${it.data}")
                             it.data?.let { it1 -> notificationUtil.showNotification(it1) }
                             result = Result.success()
-                            this.cancel(null)
-
+                            this.cancel()
                         }
-
-                        null -> Unit
                     }
                 }
+
             }.await()
+
         } catch (e: Exception) {
-            Timber.d("WeatherReminderWorker Try Catch error ${e.message}")
+            Timber.d("WeatherReminderWorker catch --->${e.message}")
         }
+
 
         Timber.d("WeatherReminderWorker -------> Executed Complete $result")
 

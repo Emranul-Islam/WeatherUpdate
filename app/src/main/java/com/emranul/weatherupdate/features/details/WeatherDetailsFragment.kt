@@ -15,6 +15,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class WeatherDetailsFragment : BaseFragment<FragmentWeatherDetailsBinding>(R.layout.fragment_weather_details) {
 
+    override val hasToolbar: Boolean = true
+    override val resToolbarId = R.id.toolbar
+
     private val args : WeatherDetailsFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,5 +40,7 @@ class WeatherDetailsFragment : BaseFragment<FragmentWeatherDetailsBinding>(R.lay
         }
 
     }
+
+
 
 }

@@ -7,22 +7,28 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.emranul.weatherupdate.core.base.ui.BaseActivity
 import com.emranul.weatherupdate.core.base.util.findNavControllerByFragmentContainerView
-import com.emranul.weatherupdate.core.domain.useCases.DailyWeatherNotifyUseCase
 import com.emranul.weatherupdate.databinding.ActivityMainBinding
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.emranul.weatherupdate.workManager.WeatherReminderWorker
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
-import javax.inject.Inject
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
@@ -31,15 +37,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val mNavController by lazy { findNavControllerByFragmentContainerView(R.id.fragmentContainerView) }
 
 
-    val dailyWeatherNotifyUseCase = DailyWeatherNotifyUseCase(this)
-
-
 
     private val requestPermissionContract =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {results ->
             val allAllowed = results.all { it.value }
             if (allAllowed) {
-                dailyWeatherNotifyUseCase.invoke()
+                getCurrentLatLon()
             }else{
                 Toast.makeText(
                     this,
@@ -79,33 +82,66 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             ).show()
             requestPermissionContract.launch(notAllowedPermission.toTypedArray())
         }else{
-            dailyWeatherNotifyUseCase.invoke()
+            getCurrentLatLon()
         }
 
     }
+    private fun getCurrentLatLon() {
 
-//    private fun getCurrentLatLon() {
-//
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//
-//            return
-//        }
-//
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-//        fusedLocationClient.lastLocation.addOnSuccessListener {
-//            Timber.d("fusedLocationClient success ${it.latitude}")
-//            executeWorkManager(it)
-//        }.addOnFailureListener {
-//            Timber.d("fusedLocationClient error ----------> ${it.message}")
-//        }
-//    }
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            return
+        }
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient.lastLocation.addOnSuccessListener {
+            Timber.d("fusedLocationClient success ${it.latitude}")
+            executeWorkManager(it)
+        }.addOnFailureListener {
+            Timber.d("fusedLocationClient error ----------> ${it.message}")
+        }
+    }
+
+    private fun executeWorkManager(location: Location) {
+        val data = Data.Builder().apply {
+            putString("latitude", location.latitude.toString())
+            putString("longitude", location.longitude.toString())
+        }.build()
+
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+//        WorkManager.getInstance(this).cancelAllWorkByTag("weatherReminderWork")
+
+        val periodicWorkRequest =
+            PeriodicWorkRequestBuilder<WeatherReminderWorker>(1, TimeUnit.HOURS)
+                .setInputData(data)
+                .setConstraints(constraints)
+                .setBackoffCriteria(
+                    BackoffPolicy.LINEAR,
+                    WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS
+                )
+                .addTag("weatherReminderWork")
+                .build()
+
+//        WorkManager.getInstance(applicationContext).enqueue(periodicWorkRequest)
+        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+            "weatherReminderWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            periodicWorkRequest
+        )
+
+    }
 
 
     companion object {
