@@ -79,6 +79,7 @@ internal class FlowCallAdapter<R>(
 }
 
 @ExperimentalCoroutinesApi
+@OptIn(DelicateCoroutinesApi::class)
 private class BodyCallAdapter<T>(
     private val responseType: Type
 ) : CallAdapter<T, Flow<T>> {

@@ -3,6 +3,7 @@ package com.emranul.weatherupdate.core.base.util
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
@@ -22,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-class EmptyClass
 
 fun Fragment.navigate(direction: NavDirections) =
     this.findNavController().navigate(direction)
@@ -41,12 +41,6 @@ inline fun Fragment.launchAndRepeatWithViewLifecycle(
     }
 }
 
-@MainThread
-inline fun <reified VM : ViewModel> Fragment.parentViewModel(
-    noinline ownerProducer: () -> ViewModelStoreOwner = { this.requireParentFragment() },
-    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
-) = createViewModelLazy(viewModelClass = VM::class, storeProducer =  { ownerProducer().viewModelStore }, factoryProducer = factoryProducer)
-
 
 fun FragmentActivity.findNavControllerByFragmentContainerView(@IdRes viewId: Int): NavController {
     val navHostFragment = this.supportFragmentManager.findFragmentById(viewId) as NavHostFragment
@@ -55,6 +49,12 @@ fun FragmentActivity.findNavControllerByFragmentContainerView(@IdRes viewId: Int
 
 val Context.layoutInflater: LayoutInflater
     get() = LayoutInflater.from(this)
+
+fun Context.showToast(message:String?) {
+    message?.let {
+        Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
+    }
+}
 
 val View.layoutInflater: LayoutInflater
     get() = this.context.layoutInflater

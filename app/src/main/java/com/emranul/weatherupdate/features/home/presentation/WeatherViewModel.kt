@@ -2,7 +2,6 @@ package com.emranul.weatherupdate.features.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emranul.weatherupdate.network.Result
 import com.emranul.weatherupdate.core.domain.model.WeatherData
 import com.emranul.weatherupdate.features.home.domain.model.WeathersPayload
 import com.emranul.weatherupdate.features.home.domain.useCases.WeathersUseCase
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -29,7 +27,10 @@ class WeatherViewModel @Inject constructor(
     val navigateTo = _navigateTo.receiveAsFlow()
 
     private val _weathers =
-        MutableSharedFlow<WeathersPayload>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        MutableSharedFlow<WeathersPayload>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
 
     val weathers = _weathers.flatMapLatest {
         weathersUseCase(it)
@@ -44,24 +45,6 @@ class WeatherViewModel @Inject constructor(
                 "90.35"
             )
         )
-        viewModelScope.launch {
-            weathers.collect{
-                when (it) {
-                    is Result.Error -> {
-                        it.message?.let {
-                            Timber.d("Api error -------------> $it")
-                        }
-                    }
-                    is Result.Loading ->{
-                        Timber.d("Api Loading -------------> ")
-                    }
-                    is Result.Success -> {
-                        Timber.d("Api Success -------------> ${it.data.toString()}")
-                    }
-                    null ->Unit
-                }
-            }
-        }
     }
 
     fun navigateTo(homeNavigation: HomeNavigation) {
@@ -74,6 +57,6 @@ class WeatherViewModel @Inject constructor(
 
 }
 
-sealed interface HomeNavigation{
-    data class NavigateToWeatherDetails(val item: WeatherData): HomeNavigation
+sealed interface HomeNavigation {
+    data class NavigateToWeatherDetails(val item: WeatherData) : HomeNavigation
 }

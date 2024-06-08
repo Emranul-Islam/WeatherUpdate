@@ -1,4 +1,4 @@
-package com.emranul.weatherupdate.util
+package com.emranul.weatherupdate.core.base.util
 
 import android.view.View
 import android.widget.ImageView

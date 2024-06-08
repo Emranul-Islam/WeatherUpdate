@@ -26,6 +26,9 @@ class NotificationUtil @Inject constructor(
     private val notificationManager: NotificationManager
 ) {
 
+    /**
+     * Creating channel for notification
+     * */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -64,15 +67,6 @@ class NotificationUtil @Inject constructor(
             )
 
         notificationBuilder.setContentIntent(pendingIntent)
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Timber.d("Notification Not allowed")
-        }else{
-            Timber.d("Notification allowed")
-        }
 
         try {
             val imageLoader = ImageLoader(context)

@@ -3,4 +3,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="weather_condition_icon">Weather Condition Icon</string>
+    <string name="permission_need_message">"Give all permission to got weather update notification"</string>
+    <string name="notification_not_allowed">"Notification not allowed"</string>
+    <string name="no">"No"</string>
+    <string name="allow">"Allow"</string>
 </resources>

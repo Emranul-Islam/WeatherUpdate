@@ -1,11 +1,13 @@
 package com.emranul.weatherupdate
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
+import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
@@ -23,9 +25,12 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.emranul.weatherupdate.core.base.ui.BaseActivity
 import com.emranul.weatherupdate.core.base.util.findNavControllerByFragmentContainerView
+import com.emranul.weatherupdate.core.base.util.showToast
 import com.emranul.weatherupdate.databinding.ActivityMainBinding
 import com.emranul.weatherupdate.workManager.WeatherReminderWorker
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -37,20 +42,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val mNavController by lazy { findNavControllerByFragmentContainerView(R.id.fragmentContainerView) }
 
 
-
     private val requestPermissionContract =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {results ->
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
             val allAllowed = results.all { it.value }
             if (allAllowed) {
                 getCurrentLatLon()
-            }else{
-                Toast.makeText(
-                    this,
-                    "Give all permission to got weather update notification",
-                    Toast.LENGTH_SHORT
-                ).show()
+            } else {
+                Timber.d("requestPermissionContract -------> permission not allowed")
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.permission_need_message),
+                    Snackbar.LENGTH_LONG
+                ).setAction("Give Permission") {
+                    handlePermission(true)
+                }.show()
             }
         }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -60,7 +68,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     }
 
-    private fun handlePermission() {
+    private fun handlePermission(isRetrying: Boolean = false) {
 
         val listOfPermission = mutableListOf<String>()
 
@@ -70,22 +78,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             listOfPermission.add(Manifest.permission.POST_NOTIFICATIONS)
         }
 
-        val notAllowedPermission =  listOfPermission.filter {
+        //Filtered not allowed permissions
+        val notAllowedPermission = listOfPermission.filter {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_DENIED
         }
 
+        //check user denied and selected "Never ask again"
+        val shouldShowPermissionAlert = notAllowedPermission.any {
+            !shouldShowRequestPermissionRationale(it)
+        }
+
+        //show an alert dialog for permission
+        if (shouldShowPermissionAlert && isRetrying) {
+            showPermissionSettingsDialog()
+        }
+
+        Timber.d("shouldShowPermissionAlert -------> $shouldShowPermissionAlert")
+
         if (notAllowedPermission.isNotEmpty()) {
-            Toast.makeText(
-                this,
-                "Give all permission to got weather update notification",
-                Toast.LENGTH_SHORT
-            ).show()
             requestPermissionContract.launch(notAllowedPermission.toTypedArray())
-        }else{
+        } else {
             getCurrentLatLon()
         }
 
     }
+
     private fun getCurrentLatLon() {
 
         if (ActivityCompat.checkSelfPermission(
@@ -96,7 +113,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-
+            showToast(getString(R.string.notification_not_allowed))
             return
         }
 
@@ -107,6 +124,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }.addOnFailureListener {
             Timber.d("fusedLocationClient error ----------> ${it.message}")
         }
+    }
+
+    private fun showPermissionSettingsDialog() {
+        MaterialAlertDialogBuilder(this).apply {
+            setTitle(getString(R.string.permission_need_message))
+            setNegativeButton(getString(R.string.no)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            setPositiveButton(getString(R.string.allow)) { dialog, _ ->
+                dialog.dismiss()
+
+                //open app setting section for permission
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                    startActivity(this)
+                }
+            }
+        }.create().show()
     }
 
     private fun executeWorkManager(location: Location) {
@@ -120,10 +155,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-//        WorkManager.getInstance(this).cancelAllWorkByTag("weatherReminderWork")
 
         val periodicWorkRequest =
-            PeriodicWorkRequestBuilder<WeatherReminderWorker>(1, TimeUnit.HOURS)
+            PeriodicWorkRequestBuilder<WeatherReminderWorker>(1, TimeUnit.DAYS)
                 .setInputData(data)
                 .setConstraints(constraints)
                 .setBackoffCriteria(
@@ -134,7 +168,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 .addTag("weatherReminderWork")
                 .build()
 
-//        WorkManager.getInstance(applicationContext).enqueue(periodicWorkRequest)
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
             "weatherReminderWork",
             ExistingPeriodicWorkPolicy.KEEP,

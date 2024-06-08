@@ -1,15 +1,9 @@
 package com.emranul.weatherupdate
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.work.Configuration
-import androidx.work.ListenableWorker
-import androidx.work.WorkerFactory
-import androidx.work.WorkerParameters
-import com.emranul.weatherupdate.core.base.util.NotificationUtil
-import com.emranul.weatherupdate.core.domain.useCases.CurrentWeatherUseCase
-import com.emranul.weatherupdate.workManager.WeatherReminderWorker
+import com.emranul.weatherupdate.workManager.WeatherReminderWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject
@@ -23,7 +17,7 @@ class WeatherUpdateApp : Application(), Configuration.Provider {
         super.onCreate()
 
 
-        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree()) //initialize Timber for just debug build
 
     }
 
@@ -34,15 +28,3 @@ class WeatherUpdateApp : Application(), Configuration.Provider {
             .build()
 }
 
-class WeatherReminderWorkerFactory @Inject constructor(
-    private val currentWeatherUseCase: CurrentWeatherUseCase,
-    private val notificationUtil: NotificationUtil,
-) : WorkerFactory() {
-    override fun createWorker(
-        appContext: Context,
-        workerClassName: String,
-        workerParameters: WorkerParameters
-    ): ListenableWorker =
-        WeatherReminderWorker(currentWeatherUseCase, notificationUtil, appContext, workerParameters)
-
-}

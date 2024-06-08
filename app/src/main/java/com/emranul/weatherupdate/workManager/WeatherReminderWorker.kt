@@ -11,15 +11,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltWorker
@@ -51,8 +44,8 @@ class WeatherReminderWorker @AssistedInject constructor(
             scope.async {
                 return@async currentWeatherUseCase(
                     WeathersPayload(
-                        lat!!,
-                        lan!!
+                        lat ?: "0.0",
+                        lan ?: "0.0"
                     )
                 ).collect {
                     when (it) {
