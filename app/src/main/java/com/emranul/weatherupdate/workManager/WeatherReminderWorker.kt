@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltWorker
-@OptIn(ExperimentalCoroutinesApi::class)
 class WeatherReminderWorker @AssistedInject constructor(
     private val currentWeatherUseCase: CurrentWeatherUseCase,
     private val notificationUtil: NotificationUtil,
@@ -32,16 +31,6 @@ class WeatherReminderWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     private val scope = CoroutineScope(Dispatchers.IO)
-
-    private val _currentWeather =
-        MutableSharedFlow<WeathersPayload>(
-            replay = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
-
-    private val currentWeather = _currentWeather.flatMapLatest {
-        currentWeatherUseCase(it)
-    }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), null)
 
     override suspend fun doWork(): Result {
 
@@ -54,15 +43,6 @@ class WeatherReminderWorker @AssistedInject constructor(
             Timber.d("WeatherReminderWorker -------> lat lan is empty")
             return Result.failure()
         }
-
-//        scope.launch {
-//            _currentWeather.tryEmit(
-//                WeathersPayload(
-//                    lat!!,
-//                    lan!!
-//                )
-//            )
-//        }
 
         var result: Result? = null
 
